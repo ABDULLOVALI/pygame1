@@ -1,0 +1,98 @@
+import pygame
+from pygame.locals import QUIT
+
+clock = pygame.time.Clock()
+
+pygame.init()
+screen = pygame.display.set_mode((1920, 696))
+pygame.display.set_caption('venom and spider-man')
+icon = pygame.image.load('images/icon.png.')
+pygame.display.set_icon(icon)
+
+bg = pygame.image.load('images/bg.png.jpg').convert_alpha()
+
+walk_right =[
+    pygame.image.load('images/Player.run/Run (1).png').convert_alpha(),
+    pygame.image.load('images/Player.run/Run (2).png').convert_alpha(),
+    pygame.image.load('images/Player.run/Run (3).png').convert_alpha(),
+    pygame.image.load('images/Player.run/Run (4).png').convert_alpha(),
+    pygame.image.load('images/Player.run/Run (5).png').convert_alpha(),
+    pygame.image.load('images/Player.run/Run (6).png').convert_alpha(),
+    pygame.image.load('images/Player.run/Run (7).png').convert_alpha(),
+    pygame.image.load('images/Player.run/Run (8).png').convert_alpha(),
+]
+
+ghost = pygame.image.load('images/ghost2.png.png.').convert_alpha()
+
+player_anim_count = 0
+bg_x = 0
+
+player_speed = 5
+player_x = 115
+player_y = 215
+
+is_jump = False
+jump_count = 11
+bg_sound = pygame.mixer.Sound('sounds/bg.mp3.mp3')
+bg_sound.play()
+
+ghost_timer = pygame.USEREVENT + 1
+pygame.time.set_timer(ghost_timer, 2500)
+ghost_list_in_game = []
+
+running = True
+while running:
+
+    screen.blit(bg, (bg_x, 0))
+    screen.blit(bg, (bg_x + 1920, 0))
+    screen.blit(walk_right[player_anim_count], (player_x, player_y))
+
+    player_rect = walk_right[0].get_rect(topleft=(player_x, player_y))
+
+    if ghost_list_in_game:
+        for dr in ghost_list_in_game:
+            screen.blit(ghost, dr)
+            dr.x -= 10
+
+    if player_rect.colliderect(dr):
+        print("YOU LOSE")
+
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_8] and player_x > 50:
+        player_x -= player_speed
+    elif keys[pygame.K_2] and player_x < 900:
+        player_x += player_speed
+
+    if not is_jump:
+        if keys[pygame.K_SPACE]:
+            is_jump = True
+    else:
+       if jump_count >= -11:
+           if jump_count > 0:
+               player_y -= (jump_count ** 2) / 2
+           else:
+            player_y += (jump_count ** 2) / 2
+           jump_count -= 1
+       else:
+           is_jump = False
+           jump_count = 11
+
+    if player_anim_count == 7:
+        player_anim_count = 0
+    else:
+        player_anim_count += 1
+    bg_x -= 2
+    if bg_x == - 1920:
+        bg_x = 0
+
+    pygame.display.update()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+           running = False
+           pygame.quit()
+        if event.type == ghost_timer:
+            ghost_list_in_game.append(ghost.get_rect(topleft=(1922, 450)))
+
+    clock.tick(15)
